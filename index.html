@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-MZ">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSONHOS - Nampula Food Delivery</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#f5f5f5}
+header{background:#000;color:#fff;padding:15px 5%;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:24px;font-weight:bold;letter-spacing:2px}
+.logo span{color:#FF6B00}
+.btn-orange{background:#FF6B00;color:#fff;padding:10px 20px;border-radius:20px;border:none;cursor:pointer;font-weight:bold}
+.hero{background:linear-gradient(135deg,#000 0%,#222 100%);color:#fff;padding:40px 5%;text-align:center}
+.hero h1{font-size:32px;margin-bottom:10px}
+.hero h1 span{color:#FF6B00}
+.restaurants{padding:20px 5%}
+.grid{display:flex;flex-wrap:wrap;gap:15px;margin-top:15px}
+.card{background:#fff;border-radius:12px;padding:15px;width:280px;box-shadow:0 2px 8px rgba(0,0,0,0.1);cursor:pointer}
+.card img{width:100%;height:140px;object-fit:cover;border-radius:8px;background:#ddd}
+.card h3{margin:10px 0 5px}
+.menu{padding:20px 5%;background:#fff;margin-top:20px}
+.menu-item{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid #eee}
+.menu-item button{background:#000;color:#fff;border:none;padding:8px 15px;border-radius:15px;cursor:pointer}
+.cart{position:fixed;bottom:20px;right:20px;background:#000;color:#fff;padding:15px 25px;border-radius:25px;box-shadow:0 4px 15px rgba(0,0,0,0.3);cursor:pointer}
+.coord{background:#111;color:#fff;padding:30px 5%;margin-top:30px}
+.order-box{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:20px;margin:15px 0}
+.order-code{color:#FF6B00;font-weight:bold;font-size:18px}
+.badge{background:#FF6B00;color:#000;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:bold}
+input,select{padding:10px;border-radius:8px;border:1px solid #ddd;width:100%;margin:8px 0}
+.checkout{background:#fff;padding:20px;border-radius:12px;max-width:400px;margin:20px auto}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">C<span>SONHOS</span></div>
+<div>Nampula • Tudo Ao Teu Alcance</div>
+<button class="btn-orange" onclick="verCoord()">Painel Coordenador</button>
+</header>
+
+<section class="hero" id="cliente">
+<h1>Em Nampula, a tua comida favorita a <span>um clique</span></h1>
+<p>Escolhes, Pedes, Recebes em casa. Sem sair de casa.</p>
+<p style="margin-top:15px;font-size:13px;color:#aaa">✓ M-Pesa • ✓ e-Mola • ✓ Entrega rápida</p>
+</section>
+
+<section class="restaurants">
+<h2>Restaurantes em Nampula</h2>
+<div class="grid" id="restList">
+<div class="card" onclick="verMenu('Casa do Grelhado')">
+<img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300">
+<h3>Casa do Grelhado</h3>
+<p style="font-size:13px;color:#777">Grelhados • 30-45 min • ⭐ 4.8</p>
+</div>
+<div class="card" onclick="verMenu('Pizzaria Nampula')">
+<img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300">
+<h3>Pizzaria Nampula</h3>
+<p style="font-size:13px;color:#777">Pizzas • 25-40 min • ⭐ 4.9</p>
+</div>
+<div class="card" onclick="verMenu('Mariscos da Ilha')">
+<img src="https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=300">
+<h3>Mariscos da Ilha</h3>
+<p style="font-size:13px;color:#777">Mariscos • 40-60 min • ⭐ 4.7</p>
+</div>
+</div>
+</section>
+
+<section class="menu" id="menuSection" style="display:none">
+<h2 id="menuTitle">Menu</h2>
+<div id="menuItems"></div>
+<button class="btn-orange" onclick="voltar()" style="margin-top:15px">Voltar aos restaurantes</button>
+</section>
+
+<div class="checkout" id="checkout" style="display:none">
+<h3>Finalizar Pedido</h3>
+<input id="nome" placeholder="Seu nome">
+<input id="telefone" placeholder="Telefone 84xxxxxxx">
+<input id="endereco" placeholder="Endereço em Nampula - Bairro, rua">
+<select id="pagamento">
+<option>M-Pesa</option>
+<option>e-Mola</option>
+<option>Dinheiro na entrega</option>
+</select>
+<p id="totalTxt" style="margin:10px 0;font-weight:bold"></p>
+<button class="btn-orange" style="width:100%" onclick="fazerPedido()">Pedir Agora - Receber em casa</button>
+</div>
+
+<div class="cart" id="cartBtn" onclick="verCheckout()">🛒 Carrinho (0) - 0 MT</div>
+
+<section class="coord" id="coord" style="display:none">
+<h2 style="color:#FF6B00">PAINEL COORDENADOR - CSONHOS</h2>
+<p style="color:#aaa;font-size:13px">Aqui você recebe todos os pedidos com CÓDIGO. Você confirma e envia para restaurante.</p>
+
+<div class="order-box">
+<div style="display:flex;justify-content:space-between">
+<span class="order-code">#CSON-123</span>
+<span class="badge">NOVO PEDIDO</span>
+</div>
+<p style="margin:10px 0"><b>Cliente:</b> Amina 84 123 4567<br>
+<b>Restaurante:</b> Casa do Grelhado<br>
+<b>Itens:</b> Frango Grelhado Inteiro 650MT + Xima 100MT + Coca 80MT<br>
+<b>Total:</b> 830MT + Entrega 150MT = <b style="color:#FF6B00">980MT PAGO via M-Pesa</b><br>
+<b>Endereço:</b> Bairro Muahivire, Rua 5<br>
+<b>Hora:</b> 19:23</p>
+<div style="display:flex;gap:10px">
+<button class="btn-orange" onclick="alert('Pedido #CSON-123 aceito! Mensagem enviada para restaurante via WhatsApp')">✓ Aceitar e Enviar p/ Restaurante</button>
+<button style="background:#333;color:#fff;padding:10px 15px;border-radius:15px;border:none" onclick="alert('Ligando para cliente...')">📞 Ligar Cliente</button>
+</div>
+</div>
+
+<div class="order-box" style="opacity:0.6">
+<div style="display:flex;justify-content:space-between">
+<span class="order-code">#CSON-122</span>
+<span class="badge" style="background:#00C851">ENTREGUE</span>
+</div>
+<p style="margin:10px 0"><b>Cliente:</b> João 82 987 6543 - Pizza 4 Queijos - Total 750MT - Entregue 19:00</p>
+</div>
+
+<button class="btn-orange" onclick="verCliente()" style="margin-top:20px">Voltar para site cliente</button>
+</section>
+
+<script>
+let cart = [];
+let menus = {
+"Casa do Grelhado":[
+{name:"Frango Grelhado Inteiro",price:650},
+{name:"Meio Frango + Xima",price:450},
+{name:"Peixe Grelhado",price:550},
+{name:"Xima",price:100},
+{name:"Coca-Cola 500ml",price:80}
+],
+"Pizzaria Nampula":[
+{name:"Pizza Margherita",price:550},
+{name:"Pizza 4 Queijos",price:650},
+{name:"Pizza Frango",price:600}
+],
+"Mariscos da Ilha":[
+{name:"Camarão Grelhado (6 unid)",price:850},
+{name:"Arroz de Mariscos",price:750}
+]
+};
+
+function verMenu(nome){
+document.getElementById('menuTitle').innerText = nome;
+let html='';
+menus[nome].forEach(item=>{
+html+=`<div class="menu-item"><div><b>${item.name}</b><br><span style="color:#FF6B00">${item.price} MT</span></div><button onclick="addCart('${item.name}',${item.price})">Adicionar</button></div>`;
+});
+document.getElementById('menuItems').innerHTML=html;
+document.getElementById('menuSection').style.display='block';
+window.scrollTo(0,400);
+}
+
+function addCart(name,price){
+cart.push({name,price});
+updateCart();
+}
+
+function updateCart(){
+let total=cart.reduce((s,i)=>s+i.price,0);
+document.getElementById('cartBtn').innerText=`🛒 Carrinho (${cart.length}) - ${total} MT`;
+}
+
+function voltar(){
+document.getElementById('menuSection').style.display='none';
+}
+
+function verCheckout(){
+if(cart.length==0){alert('Carrinho vazio! Escolhe um restaurante e adiciona comida.');return}
+document.getElementById('checkout').style.display='block';
+let total=cart.reduce((s,i)=>s+i.price,0)+150;
+document.getElementById('totalTxt').innerText=`Total + entrega 150MT = ${total} MT`;
+window.scrollTo(0,800);
+}
+
+function fazerPedido(){
+let codigo='CSON-'+Math.floor(100+Math.random()*900);
+alert(`Pedido ${codigo} enviado com sucesso!\n\nVocê vai receber confirmação via WhatsApp.\nO coordenador CSONHOS vai aceitar e enviar para o restaurante.\n\nRecebes em casa sem sair de casa!\n\nTotal pago via ${document.getElementById('pagamento').value}`);
+cart=[];
+updateCart();
+document.getElementById('checkout').style.display='none';
+}
+
+function verCoord(){
+document.getElementById('cliente').style.display='none';
+document.querySelector('.restaurants').style.display='none';
+document.getElementById('menuSection').style.display='none';
+document.getElementById('checkout').style.display='none';
+document.getElementById('cartBtn').style.display='none';
+document.getElementById('coord').style.display='block';
+}
+
+function verCliente(){
+document.getElementById('cliente').style.display='block';
+document.querySelector('.restaurants').style.display='block';
+document.getElementById('cartBtn').style.display='block';
+document.getElementById('coord').style.display='none';
+}
+</script>
+
+</body>
+</html>
